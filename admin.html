@@ -1,0 +1,1166 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes">
+  <title>Mithas · Admin Dashboard</title>
+  <!-- Poppins & Font Awesome -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+  <style>
+    :root {
+      --primary: #c44536;
+      --primary-light: #e05a4f;
+      --secondary: #2d2d2d;
+      --sidebar-bg: #1e1e1e;
+      --sidebar-text: #e0e0e0;
+      --sidebar-active: #c44536;
+      --bg: #f4f6f8;
+      --card-bg: #ffffff;
+      --text: #1e1e1e;
+      --text-light: #6b6b6b;
+      --border: #e0dbd7;
+      --shadow: 0 4px 12px rgba(0, 0, 0, 0.06);
+      --radius: 12px;
+      --radius-sm: 8px;
+      --transition: all 0.2s ease;
+      --green: #2e7d32;
+      --red: #c62828;
+      --orange: #ed6c02;
+      --blue: #1976d2;
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Poppins', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.5;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    /* ===== LAYOUT ===== */
+    .app {
+      display: flex;
+      min-height: 100vh;
+    }
+
+    /* ===== SIDEBAR ===== */
+    .sidebar {
+      width: 260px;
+      background: var(--sidebar-bg);
+      color: var(--sidebar-text);
+      display: flex;
+      flex-direction: column;
+      position: fixed;
+      top: 0;
+      bottom: 0;
+      left: 0;
+      z-index: 200;
+      transition: transform 0.25s ease;
+      overflow-y: auto;
+    }
+
+    .sidebar-brand {
+      padding: 24px 20px;
+      font-size: 1.4rem;
+      font-weight: 700;
+      letter-spacing: -0.5px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+      color: white;
+    }
+    .sidebar-brand span { color: var(--primary-light); }
+
+    .sidebar-nav {
+      flex: 1;
+      padding: 16px 12px;
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .sidebar-link {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      padding: 12px 16px;
+      border-radius: var(--radius-sm);
+      color: var(--sidebar-text);
+      text-decoration: none;
+      font-size: 0.9rem;
+      font-weight: 500;
+      cursor: pointer;
+      transition: var(--transition);
+      border: none;
+      background: none;
+      width: 100%;
+      text-align: left;
+    }
+    .sidebar-link i { width: 20px; text-align: center; font-size: 1.05rem; }
+    .sidebar-link:hover { background: rgba(255, 255, 255, 0.06); }
+    .sidebar-link.active {
+      background: var(--sidebar-active);
+      color: white;
+    }
+    .sidebar-link.logout { color: #ff8a80; margin-top: auto; }
+
+    /* ===== MAIN ===== */
+    .main {
+      flex: 1;
+      margin-left: 260px;
+      padding: 24px;
+      transition: margin-left 0.25s ease;
+      min-width: 0;
+    }
+
+    .topbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 24px;
+      gap: 12px;
+    }
+
+    .topbar h1 {
+      font-size: 1.5rem;
+      font-weight: 600;
+    }
+
+    .hamburger {
+      display: none;
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      width: 42px;
+      height: 42px;
+      font-size: 1.1rem;
+      cursor: pointer;
+      color: var(--secondary);
+    }
+
+    .user-badge {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      background: var(--card-bg);
+      padding: 8px 16px;
+      border-radius: 40px;
+      box-shadow: var(--shadow);
+      font-size: 0.85rem;
+    }
+    .user-badge .dot {
+      width: 10px; height: 10px; border-radius: 50%; background: var(--green);
+    }
+
+    /* ===== SECTIONS ===== */
+    .section { display: none; }
+    .section.active { display: block; animation: fade 0.25s ease; }
+    @keyframes fade { from { opacity: 0.5; } to { opacity: 1; } }
+
+    /* ===== STATS ===== */
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 16px;
+      margin-bottom: 24px;
+    }
+    .stat-card {
+      background: var(--card-bg);
+      border-radius: var(--radius);
+      padding: 20px;
+      box-shadow: var(--shadow);
+      display: flex;
+      align-items: center;
+      gap: 16px;
+    }
+    .stat-icon {
+      width: 56px; height: 56px;
+      border-radius: var(--radius-sm);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.4rem;
+      color: white;
+      flex-shrink: 0;
+    }
+    .stat-info h3 {
+      font-size: 1.6rem;
+      font-weight: 700;
+      line-height: 1.2;
+    }
+    .stat-info p {
+      font-size: 0.8rem;
+      color: var(--text-light);
+      text-transform: uppercase;
+      letter-spacing: 0.3px;
+    }
+
+    /* ===== CARDS & TABLES ===== */
+    .card {
+      background: var(--card-bg);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      padding: 20px;
+      margin-bottom: 20px;
+    }
+    .card-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 16px;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+    .card-header h2 {
+      font-size: 1.1rem;
+      font-weight: 600;
+    }
+
+    .table-wrap {
+      overflow-x: auto;
+      -webkit-overflow-scrolling: touch;
+      border-radius: var(--radius-sm);
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.85rem;
+      min-width: 640px;
+    }
+    th, td {
+      padding: 12px 14px;
+      text-align: left;
+      border-bottom: 1px solid var(--border);
+      vertical-align: middle;
+    }
+    th {
+      background: #faf9f8;
+      font-weight: 600;
+      color: var(--text-light);
+      text-transform: uppercase;
+      font-size: 0.7rem;
+      letter-spacing: 0.5px;
+      white-space: nowrap;
+    }
+    td img {
+      width: 44px; height: 44px;
+      border-radius: 8px;
+      object-fit: cover;
+      background: #f0edea;
+    }
+    tr:last-child td { border-bottom: none; }
+
+    /* ===== BUTTONS ===== */
+    .btn {
+      padding: 10px 18px;
+      border-radius: 40px;
+      font-weight: 500;
+      font-size: 0.85rem;
+      border: none;
+      background: var(--primary);
+      color: white;
+      cursor: pointer;
+      transition: var(--transition);
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      font-family: inherit;
+      white-space: nowrap;
+    }
+    .btn:active { opacity: 0.85; transform: scale(0.97); }
+    .btn:disabled { opacity: 0.5; cursor: not-allowed; }
+    .btn-sm { padding: 7px 12px; font-size: 0.78rem; }
+    .btn-outline {
+      background: transparent;
+      border: 1.5px solid var(--border);
+      color: var(--text);
+    }
+    .btn-outline:hover { background: #faf9f8; }
+    .btn-danger {
+      background: transparent;
+      color: var(--red);
+      border: 1.5px solid #f5c6c6;
+    }
+    .btn-danger:hover { background: #fdeaea; }
+    .btn-icon {
+      width: 36px; height: 36px;
+      padding: 0;
+      border-radius: 50%;
+      background: #f0edea;
+      color: var(--secondary);
+      font-size: 0.9rem;
+      border: none;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      transition: var(--transition);
+    }
+    .btn-icon:hover { background: #e6e1dd; }
+
+    /* ===== STATUS SELECT ===== */
+    .status-select {
+      padding: 6px 10px;
+      border-radius: 20px;
+      border: 1px solid var(--border);
+      font-family: inherit;
+      font-size: 0.78rem;
+      font-weight: 500;
+      cursor: pointer;
+      background: white;
+      min-width: 130px;
+    }
+
+    /* ===== FORMS ===== */
+    .form-group { margin-bottom: 16px; }
+    .form-group label {
+      display: block;
+      font-size: 0.8rem;
+      font-weight: 500;
+      margin-bottom: 6px;
+      color: var(--text-light);
+    }
+    .form-group input, .form-group textarea, .form-group select {
+      width: 100%;
+      padding: 11px 14px;
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      font-family: inherit;
+      font-size: 0.9rem;
+      background: #faf9f8;
+      transition: var(--transition);
+    }
+    .form-group input:focus, .form-group textarea:focus {
+      outline: none;
+      border-color: var(--primary);
+      background: white;
+    }
+
+    /* ===== MODAL ===== */
+    .modal-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.5);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 500;
+      padding: 16px;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.2s ease;
+    }
+    .modal-overlay.open {
+      opacity: 1;
+      pointer-events: auto;
+    }
+    .modal {
+      background: var(--card-bg);
+      border-radius: var(--radius);
+      max-width: 480px;
+      width: 100%;
+      max-height: 90vh;
+      overflow-y: auto;
+      padding: 24px;
+      box-shadow: 0 24px 48px rgba(0, 0, 0, 0.25);
+      transform: translateY(10px);
+      transition: transform 0.2s ease;
+      position: relative;
+    }
+    .modal-overlay.open .modal { transform: translateY(0); }
+    .modal h3 { margin-bottom: 18px; font-size: 1.15rem; }
+    .modal-close {
+      position: absolute;
+      top: 14px; right: 16px;
+      background: none;
+      border: none;
+      font-size: 1.6rem;
+      line-height: 1;
+      color: var(--text-light);
+      cursor: pointer;
+    }
+
+    /* ===== LOGIN SCREEN ===== */
+    .login-wrap {
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+      background: linear-gradient(135deg, #1e1e1e 0%, #3a2b28 100%);
+    }
+    .login-card {
+      background: white;
+      border-radius: var(--radius);
+      padding: 32px 28px;
+      width: 100%;
+      max-width: 400px;
+      box-shadow: 0 24px 48px rgba(0, 0, 0, 0.3);
+    }
+    .login-card h1 {
+      font-size: 1.6rem;
+      margin-bottom: 6px;
+      color: var(--primary);
+    }
+    .login-card p {
+      color: var(--text-light);
+      font-size: 0.85rem;
+      margin-bottom: 24px;
+    }
+
+    /* ===== TOAST ===== */
+    .toast {
+      position: fixed;
+      bottom: 24px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: var(--secondary);
+      color: white;
+      padding: 12px 24px;
+      border-radius: 40px;
+      font-size: 0.85rem;
+      z-index: 600;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.2s ease;
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.25);
+      max-width: 90%;
+      text-align: center;
+    }
+    .toast.show { opacity: 1; }
+
+    /* ===== EMPTY ===== */
+    .empty {
+      text-align: center;
+      padding: 40px 16px;
+      color: var(--text-light);
+    }
+    .empty i { font-size: 2.6rem; margin-bottom: 12px; opacity: 0.35; }
+
+    /* ===== MOBILE BOTTOM NAV ===== */
+    .mobile-nav {
+      display: none;
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      background: var(--card-bg);
+      border-top: 1px solid var(--border);
+      z-index: 250;
+      box-shadow: 0 -4px 16px rgba(0, 0, 0, 0.05);
+    }
+    .mobile-nav .nav-items {
+      display: flex;
+      justify-content: space-around;
+    }
+    .mobile-nav a {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 3px;
+      padding: 8px 0;
+      font-size: 0.65rem;
+      color: var(--text-light);
+      text-decoration: none;
+      transition: var(--transition);
+    }
+    .mobile-nav a i { font-size: 1.15rem; }
+    .mobile-nav a.active { color: var(--primary); }
+
+    /* ===== OVERLAY BACKDROP ===== */
+    .backdrop {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.4);
+      z-index: 150;
+    }
+    .backdrop.show { display: block; }
+
+    /* ===== RESPONSIVE ===== */
+    @media (max-width: 900px) {
+      .sidebar { transform: translateX(-100%); }
+      .sidebar.open { transform: translateX(0); }
+      .main { margin-left: 0; padding: 16px; padding-bottom: 90px; }
+      .hamburger { display: flex; align-items: center; justify-content: center; }
+      .mobile-nav { display: block; }
+      .topbar h1 { font-size: 1.2rem; }
+      .user-badge .user-email { display: none; }
+    }
+
+    @media (max-width: 500px) {
+      .stat-card { padding: 16px; }
+      .stat-icon { width: 48px; height: 48px; font-size: 1.2rem; }
+      .stat-info h3 { font-size: 1.3rem; }
+      .card { padding: 16px; }
+    }
+
+    .hidden { display: none !important; }
+  </style>
+</head>
+<body>
+  <!-- ===== LOGIN SCREEN ===== -->
+  <div id="loginScreen" class="login-wrap">
+    <div class="login-card">
+      <h1>Mithas Admin</h1>
+      <p>Sign in to access the dashboard</p>
+      <form id="adminLoginForm">
+        <div class="form-group">
+          <label>Email</label>
+          <input type="email" id="adminEmail" required placeholder="admin@example.com">
+        </div>
+        <div class="form-group">
+          <label>Password</label>
+          <input type="password" id="adminPassword" required placeholder="••••••••">
+        </div>
+        <button type="submit" class="btn" style="width:100%;" id="adminLoginBtn">
+          <i class="fas fa-sign-in-alt"></i> Sign In
+        </button>
+        <p id="adminLoginError" style="color:var(--red);font-size:0.8rem;margin-top:12px;text-align:center;"></p>
+      </form>
+    </div>
+  </div>
+
+  <!-- ===== DASHBOARD APP ===== -->
+  <div id="dashboardApp" class="app hidden">
+    <!-- SIDEBAR -->
+    <aside class="sidebar" id="sidebar">
+      <div class="sidebar-brand">Mithas<span>Admin</span></div>
+      <nav class="sidebar-nav">
+        <button class="sidebar-link active" data-section="dashboard"><i class="fas fa-chart-pie"></i> Dashboard</button>
+        <button class="sidebar-link" data-section="products"><i class="fas fa-box"></i> Products</button>
+        <button class="sidebar-link" data-section="orders"><i class="fas fa-shopping-cart"></i> Orders</button>
+        <button class="sidebar-link" data-section="slider"><i class="fas fa-images"></i> Slider</button>
+        <button class="sidebar-link" data-section="messages"><i class="fas fa-envelope"></i> Messages</button>
+        <button class="sidebar-link logout" id="adminLogout"><i class="fas fa-sign-out-alt"></i> Logout</button>
+      </nav>
+    </aside>
+
+    <!-- BACKDROP -->
+    <div class="backdrop" id="backdrop"></div>
+
+    <!-- MAIN -->
+    <main class="main">
+      <header class="topbar">
+        <div style="display:flex;align-items:center;gap:12px;">
+          <button class="hamburger" id="hamburger"><i class="fas fa-bars"></i></button>
+          <h1 id="pageTitle">Dashboard</h1>
+        </div>
+        <div class="user-badge">
+          <span class="dot"></span>
+          <span class="user-email" id="adminEmailDisplay"></span>
+        </div>
+      </header>
+
+      <!-- DASHBOARD -->
+      <section id="section-dashboard" class="section active">
+        <div class="stats-grid">
+          <div class="stat-card">
+            <div class="stat-icon" style="background:#c44536;"><i class="fas fa-box"></i></div>
+            <div class="stat-info"><h3 id="statProducts">0</h3><p>Total Products</p></div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-icon" style="background:#1976d2;"><i class="fas fa-shopping-cart"></i></div>
+            <div class="stat-info"><h3 id="statOrders">0</h3><p>Total Orders</p></div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-icon" style="background:#2e7d32;"><i class="fas fa-users"></i></div>
+            <div class="stat-info"><h3 id="statUsers">0</h3><p>Total Users</p></div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-icon" style="background:#ed6c02;"><i class="fas fa-envelope"></i></div>
+            <div class="stat-info"><h3 id="statMessages">0</h3><p>Total Messages</p></div>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-header"><h2>Recent Orders</h2></div>
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr><th>Order ID</th><th>Customer</th><th>Total</th><th>Status</th></tr>
+              </thead>
+              <tbody id="recentOrdersBody">
+                <tr><td colspan="4" class="empty"><i class="fas fa-inbox"></i><p>No orders yet</p></td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <!-- PRODUCTS -->
+      <section id="section-products" class="section">
+        <div class="card">
+          <div class="card-header">
+            <h2>All Products</h2>
+            <button class="btn" id="addProductBtn"><i class="fas fa-plus"></i> Add Product</button>
+          </div>
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr><th>Image</th><th>Name</th><th>Category</th><th>Price</th><th>Description</th><th>Actions</th></tr>
+              </thead>
+              <tbody id="productsTableBody"></tbody>
+            </table>
+          </div>
+          <div id="productsEmpty" class="empty hidden"><i class="fas fa-box-open"></i><p>No products yet</p></div>
+        </div>
+      </section>
+
+      <!-- ORDERS -->
+      <section id="section-orders" class="section">
+        <div class="card">
+          <div class="card-header"><h2>All Orders</h2></div>
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>Order ID</th><th>Customer</th><th>Phone</th><th>Email</th>
+                  <th>Address</th><th>Date</th><th>Total</th><th>Status</th><th>Actions</th>
+                </tr>
+              </thead>
+              <tbody id="ordersTableBody"></tbody>
+            </table>
+          </div>
+          <div id="ordersEmpty" class="empty hidden"><i class="fas fa-shopping-cart"></i><p>No orders yet</p></div>
+        </div>
+      </section>
+
+      <!-- SLIDER -->
+      <section id="section-slider" class="section">
+        <div class="card">
+          <div class="card-header">
+            <h2>Slider Images</h2>
+            <button class="btn" id="addSliderBtn"><i class="fas fa-plus"></i> Add Image</button>
+          </div>
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr><th>Preview</th><th>Image URL</th><th>Actions</th></tr>
+              </thead>
+              <tbody id="sliderTableBody"></tbody>
+            </table>
+          </div>
+          <div id="sliderEmpty" class="empty hidden"><i class="fas fa-images"></i><p>No slider images yet</p></div>
+        </div>
+      </section>
+
+      <!-- MESSAGES -->
+      <section id="section-messages" class="section">
+        <div class="card">
+          <div class="card-header"><h2>Contact Messages</h2></div>
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr><th>Date</th><th>Name</th><th>Email</th><th>Message</th></tr>
+              </thead>
+              <tbody id="messagesTableBody"></tbody>
+            </table>
+          </div>
+          <div id="messagesEmpty" class="empty hidden"><i class="fas fa-envelope-open"></i><p>No messages yet</p></div>
+        </div>
+      </section>
+    </main>
+
+    <!-- MOBILE BOTTOM NAV -->
+    <nav class="mobile-nav">
+      <div class="nav-items">
+        <a href="#" data-section="dashboard" class="active"><i class="fas fa-chart-pie"></i><span>Dashboard</span></a>
+        <a href="#" data-section="products"><i class="fas fa-box"></i><span>Products</span></a>
+        <a href="#" data-section="orders"><i class="fas fa-shopping-cart"></i><span>Orders</span></a>
+        <a href="#" data-section="slider"><i class="fas fa-images"></i><span>Slider</span></a>
+        <a href="#" data-section="messages"><i class="fas fa-envelope"></i><span>Messages</span></a>
+      </div>
+    </nav>
+  </div>
+
+  <!-- ===== PRODUCT MODAL ===== -->
+  <div class="modal-overlay" id="productModal">
+    <div class="modal">
+      <button class="modal-close" id="closeProductModal">&times;</button>
+      <h3 id="productModalTitle">Add Product</h3>
+      <form id="productForm">
+        <input type="hidden" id="productEditId">
+        <div class="form-group"><label>Product Name</label><input type="text" id="productName" required></div>
+        <div class="form-group"><label>Category</label><input type="text" id="productCategory" required></div>
+        <div class="form-group"><label>Price (₹)</label><input type="number" id="productPrice" required min="0" step="0.01"></div>
+        <div class="form-group"><label>Description</label><textarea id="productDescription" rows="3"></textarea></div>
+        <div class="form-group"><label>Image URL</label><input type="url" id="productImageUrl" placeholder="https://..."></div>
+        <button type="submit" class="btn" style="width:100%;" id="productSubmitBtn">Save Product</button>
+      </form>
+    </div>
+  </div>
+
+  <!-- ===== SLIDER MODAL ===== -->
+  <div class="modal-overlay" id="sliderModal">
+    <div class="modal">
+      <button class="modal-close" id="closeSliderModal">&times;</button>
+      <h3>Add Slider Image</h3>
+      <form id="sliderForm">
+        <div class="form-group"><label>Image URL</label><input type="url" id="sliderImageUrl" required placeholder="https://..."></div>
+        <button type="submit" class="btn" style="width:100%;">Add Image</button>
+      </form>
+    </div>
+  </div>
+
+  <!-- ===== CONFIRM MODAL ===== -->
+  <div class="modal-overlay" id="confirmModal">
+    <div class="modal" style="max-width:380px;">
+      <h3 id="confirmTitle">Are you sure?</h3>
+      <p id="confirmText" style="color:var(--text-light);font-size:0.9rem;margin-bottom:20px;">This action cannot be undone.</p>
+      <div style="display:flex;gap:10px;">
+        <button class="btn btn-outline" style="flex:1;" id="confirmCancel">Cancel</button>
+        <button class="btn btn-danger" style="flex:1;" id="confirmOk">Delete</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- TOAST -->
+  <div class="toast" id="toast"></div>
+
+  <script type="module">
+    // ========== FIREBASE ==========
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js";
+    import { getAuth, onAuthStateChanged, signInWithEmailAndPassword, signOut } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-auth.js";
+    import { getDatabase, ref, set, get, push, update, remove, onValue } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-database.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyBHDfo2U2dvQ11rclDIvkM25LzGRD1RJro",
+      authDomain: "mithas-9bbcc.firebaseapp.com",
+      databaseURL: "https://mithas-9bbcc-default-rtdb.firebaseio.com",
+      projectId: "mithas-9bbcc",
+      storageBucket: "mithas-9bbcc.firebasestorage.app",
+      messagingSenderId: "594312020523",
+      appId: "1:594312020523:web:c67384db64ccf386b0e06e"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const db = getDatabase(app);
+
+    // ========== STATE ==========
+    let currentAdmin = null;
+    let productsCache = [];
+    let ordersCache = [];
+    let sliderCache = [];
+    let messagesCache = [];
+
+    // ========== DOM ==========
+    const loginScreen = document.getElementById('loginScreen');
+    const dashboardApp = document.getElementById('dashboardApp');
+    const sidebar = document.getElementById('sidebar');
+    const backdrop = document.getElementById('backdrop');
+    const hamburger = document.getElementById('hamburger');
+    const pageTitle = document.getElementById('pageTitle');
+    const toast = document.getElementById('toast');
+
+    function showToast(msg) {
+      toast.textContent = msg;
+      toast.classList.add('show');
+      setTimeout(() => toast.classList.remove('show'), 2400);
+    }
+
+    // ========== AUTH ==========
+    onAuthStateChanged(auth, (user) => {
+      if (user) {
+        currentAdmin = user;
+        loginScreen.classList.add('hidden');
+        dashboardApp.classList.remove('hidden');
+        document.getElementById('adminEmailDisplay').textContent = user.email;
+        initDataListeners();
+      } else {
+        currentAdmin = null;
+        loginScreen.classList.remove('hidden');
+        dashboardApp.classList.add('hidden');
+      }
+    });
+
+    document.getElementById('adminLoginForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const email = document.getElementById('adminEmail').value.trim();
+      const pass = document.getElementById('adminPassword').value;
+      const errEl = document.getElementById('adminLoginError');
+      const btn = document.getElementById('adminLoginBtn');
+      errEl.textContent = '';
+      btn.disabled = true;
+      try {
+        await signInWithEmailAndPassword(auth, email, pass);
+        showToast('Welcome, Admin');
+      } catch (err) {
+        errEl.textContent = err.message;
+      } finally {
+        btn.disabled = false;
+      }
+    });
+
+    document.getElementById('adminLogout').addEventListener('click', async () => {
+      await signOut(auth);
+      showToast('Signed out');
+    });
+
+    // ========== SIDEBAR TOGGLE ==========
+    hamburger.addEventListener('click', () => {
+      sidebar.classList.toggle('open');
+      backdrop.classList.toggle('show', sidebar.classList.contains('open'));
+    });
+    backdrop.addEventListener('click', () => {
+      sidebar.classList.remove('open');
+      backdrop.classList.remove('show');
+    });
+
+    // ========== NAVIGATION ==========
+    const sectionTitles = {
+      dashboard: 'Dashboard',
+      products: 'Product Management',
+      orders: 'Order Management',
+      slider: 'Slider Management',
+      messages: 'Messages'
+    };
+
+    function navigateTo(section) {
+      document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+      document.getElementById(`section-${section}`).classList.add('active');
+      document.querySelectorAll('.sidebar-link').forEach(l => l.classList.toggle('active', l.dataset.section === section));
+      document.querySelectorAll('.mobile-nav a').forEach(a => a.classList.toggle('active', a.dataset.section === section));
+      pageTitle.textContent = sectionTitles[section] || 'Dashboard';
+      if (window.innerWidth <= 900) {
+        sidebar.classList.remove('open');
+        backdrop.classList.remove('show');
+      }
+    }
+
+    document.querySelectorAll('.sidebar-link[data-section]').forEach(btn => {
+      btn.addEventListener('click', () => navigateTo(btn.dataset.section));
+    });
+    document.querySelectorAll('.mobile-nav a[data-section]').forEach(a => {
+      a.addEventListener('click', (e) => {
+        e.preventDefault();
+        navigateTo(a.dataset.section);
+      });
+    });
+
+    // ========== DATA LISTENERS ==========
+    function initDataListeners() {
+      // Products
+      onValue(ref(db, 'products'), (snap) => {
+        productsCache = [];
+        snap.forEach(child => productsCache.push({ id: child.key, ...child.val() }));
+        renderProductsTable();
+        document.getElementById('statProducts').textContent = productsCache.length;
+      });
+
+      // Orders (all users)
+      onValue(ref(db, 'orders'), (snap) => {
+        ordersCache = [];
+        snap.forEach(userSnap => {
+          userSnap.forEach(orderSnap => {
+            ordersCache.push({ id: orderSnap.key, userId: userSnap.key, ...orderSnap.val() });
+          });
+        });
+        ordersCache.sort((a, b) => (b.date || 0) - (a.date || 0));
+        renderOrdersTable();
+        renderRecentOrders();
+        document.getElementById('statOrders').textContent = ordersCache.length;
+      });
+
+      // Users
+      onValue(ref(db, 'users'), (snap) => {
+        let count = 0;
+        snap.forEach(() => count++);
+        document.getElementById('statUsers').textContent = count;
+      });
+
+      // Messages
+      onValue(ref(db, 'messages'), (snap) => {
+        messagesCache = [];
+        snap.forEach(child => messagesCache.push({ id: child.key, ...child.val() }));
+        messagesCache.sort((a, b) => (b.date || 0) - (a.date || 0));
+        renderMessagesTable();
+        document.getElementById('statMessages').textContent = messagesCache.length;
+      });
+
+      // Slider
+      onValue(ref(db, 'sliderImages'), (snap) => {
+        sliderCache = [];
+        snap.forEach(child => sliderCache.push({ id: child.key, ...child.val() }));
+        renderSliderTable();
+      });
+    }
+
+    // ========== DASHBOARD ==========
+    function renderRecentOrders() {
+      const tbody = document.getElementById('recentOrdersBody');
+      const recent = ordersCache.slice(0, 5);
+      if (!recent.length) {
+        tbody.innerHTML = `<tr><td colspan="4" class="empty"><i class="fas fa-inbox"></i><p>No orders yet</p></td></tr>`;
+        return;
+      }
+      tbody.innerHTML = recent.map(o => `
+        <tr>
+          <td>#${(o.orderId || o.id).slice(-6)}</td>
+          <td>${o.username || '—'}</td>
+          <td>₹${o.totalAmount || 0}</td>
+          <td><span style="color:${statusColor(o.status)};font-weight:600;">${o.status || 'Pending'}</span></td>
+        </tr>
+      `).join('');
+    }
+
+    function statusColor(status) {
+      const map = {
+        Pending: 'var(--orange)', Confirmed: '#1976d2', Preparing: '#9c27b0',
+        Shipped: '#0288d1', Delivered: 'var(--green)', Cancelled: 'var(--red)'
+      };
+      return map[status] || 'var(--text-light)';
+    }
+
+    // ========== PRODUCTS ==========
+    function renderProductsTable() {
+      const tbody = document.getElementById('productsTableBody');
+      const empty = document.getElementById('productsEmpty');
+      if (!productsCache.length) {
+        tbody.innerHTML = '';
+        empty.classList.remove('hidden');
+        return;
+      }
+      empty.classList.add('hidden');
+      tbody.innerHTML = productsCache.map(p => `
+        <tr>
+          <td><img src="${p.imageUrl || 'https://via.placeholder.com/60'}" alt="${p.name || ''}"></td>
+          <td style="font-weight:600;">${p.name || '—'}</td>
+          <td>${p.category || '—'}</td>
+          <td>₹${p.price || 0}</td>
+          <td style="max-width:220px;color:var(--text-light);font-size:0.8rem;">${(p.description || '').slice(0, 70)}${(p.description || '').length > 70 ? '…' : ''}</td>
+          <td>
+            <div style="display:flex;gap:6px;">
+              <button class="btn-icon edit-product" data-id="${p.id}" title="Edit"><i class="fas fa-pen"></i></button>
+              <button class="btn-icon delete-product" data-id="${p.id}" title="Delete" style="color:var(--red);"><i class="fas fa-trash"></i></button>
+            </div>
+          </td>
+        </tr>
+      `).join('');
+
+      tbody.querySelectorAll('.edit-product').forEach(b => b.onclick = () => openProductModal(b.dataset.id));
+      tbody.querySelectorAll('.delete-product').forEach(b => b.onclick = () => {
+        confirmAction('Delete product?', 'This will permanently remove the product.', async () => {
+          await remove(ref(db, `products/${b.dataset.id}`));
+          showToast('Product deleted');
+        });
+      });
+    }
+
+    // Product modal
+    const productModal = document.getElementById('productModal');
+    document.getElementById('addProductBtn').onclick = () => openProductModal();
+    document.getElementById('closeProductModal').onclick = () => productModal.classList.remove('open');
+
+    function openProductModal(id = null) {
+      const form = document.getElementById('productForm');
+      form.reset();
+      document.getElementById('productEditId').value = '';
+      if (id) {
+        const p = productsCache.find(x => x.id === id);
+        if (!p) return;
+        document.getElementById('productModalTitle').textContent = 'Edit Product';
+        document.getElementById('productEditId').value = id;
+        document.getElementById('productName').value = p.name || '';
+        document.getElementById('productCategory').value = p.category || '';
+        document.getElementById('productPrice').value = p.price || '';
+        document.getElementById('productDescription').value = p.description || '';
+        document.getElementById('productImageUrl').value = p.imageUrl || '';
+      } else {
+        document.getElementById('productModalTitle').textContent = 'Add Product';
+      }
+      productModal.classList.add('open');
+    }
+
+    document.getElementById('productForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const editId = document.getElementById('productEditId').value;
+      const data = {
+        name: document.getElementById('productName').value.trim(),
+        category: document.getElementById('productCategory').value.trim(),
+        price: parseFloat(document.getElementById('productPrice').value) || 0,
+        description: document.getElementById('productDescription').value.trim(),
+        imageUrl: document.getElementById('productImageUrl').value.trim()
+      };
+      try {
+        if (editId) {
+          await update(ref(db, `products/${editId}`), data);
+          showToast('Product updated');
+        } else {
+          const newRef = push(ref(db, 'products'));
+          await set(newRef, data);
+          showToast('Product added');
+        }
+        productModal.classList.remove('open');
+      } catch (err) {
+        showToast('Error: ' + err.message);
+      }
+    });
+
+    // ========== ORDERS ==========
+    function renderOrdersTable() {
+      const tbody = document.getElementById('ordersTableBody');
+      const empty = document.getElementById('ordersEmpty');
+      if (!ordersCache.length) {
+        tbody.innerHTML = '';
+        empty.classList.remove('hidden');
+        return;
+      }
+      empty.classList.add('hidden');
+      tbody.innerHTML = ordersCache.map(o => {
+        const oid = o.orderId || o.id;
+        return `
+        <tr>
+          <td style="font-weight:600;">#${oid.slice(-6)}</td>
+          <td>${o.username || '—'}</td>
+          <td>${o.phoneNumber || '—'}</td>
+          <td style="font-size:0.78rem;">${o.userEmail || '—'}</td>
+          <td style="max-width:200px;font-size:0.78rem;">${o.shippingAddress || '—'}</td>
+          <td>${o.date ? new Date(o.date).toLocaleDateString() : '—'}</td>
+          <td style="font-weight:600;">₹${o.totalAmount || 0}</td>
+          <td>
+            <select class="status-select" data-user="${o.userId}" data-order="${oid}">
+              ${['Pending', 'Confirmed', 'Preparing', 'Shipped', 'Delivered', 'Cancelled'].map(s =>
+                `<option value="${s}" ${o.status === s ? 'selected' : ''}>${s}</option>`
+              ).join('')}
+            </select>
+          </td>
+          <td>
+            <button class="btn-icon delete-order" data-user="${o.userId}" data-order="${oid}" style="color:var(--red);" title="Delete">
+              <i class="fas fa-trash"></i>
+            </button>
+          </td>
+        </tr>`;
+      }).join('');
+
+      tbody.querySelectorAll('.status-select').forEach(sel => {
+        sel.addEventListener('change', async () => {
+          const user = sel.dataset.user;
+          const order = sel.dataset.order;
+          try {
+            await update(ref(db, `orders/${user}/${order}`), { status: sel.value });
+            showToast('Status updated');
+          } catch (err) {
+            showToast('Error: ' + err.message);
+          }
+        });
+      });
+
+      tbody.querySelectorAll('.delete-order').forEach(b => b.onclick = () => {
+        confirmAction('Delete order?', 'This will permanently remove the order.', async () => {
+          await remove(ref(db, `orders/${b.dataset.user}/${b.dataset.order}`));
+          showToast('Order deleted');
+        });
+      });
+    }
+
+    // ========== SLIDER ==========
+    function renderSliderTable() {
+      const tbody = document.getElementById('sliderTableBody');
+      const empty = document.getElementById('sliderEmpty');
+      if (!sliderCache.length) {
+        tbody.innerHTML = '';
+        empty.classList.remove('hidden');
+        return;
+      }
+      empty.classList.add('hidden');
+      tbody.innerHTML = sliderCache.map(s => {
+        const url = s.downloadURL || s.imageUrl || '';
+        return `
+        <tr>
+          <td><img src="${url || 'https://via.placeholder.com/80'}" alt="slider"></td>
+          <td style="font-size:0.78rem;word-break:break-all;max-width:320px;">${url}</td>
+          <td>
+            <button class="btn-icon delete-slider" data-id="${s.id}" style="color:var(--red);"><i class="fas fa-trash"></i></button>
+          </td>
+        </tr>`;
+      }).join('');
+
+      tbody.querySelectorAll('.delete-slider').forEach(b => b.onclick = () => {
+        confirmAction('Delete slider image?', 'This will remove the image from the slider.', async () => {
+          await remove(ref(db, `sliderImages/${b.dataset.id}`));
+          showToast('Slider image deleted');
+        });
+      });
+    }
+
+    const sliderModal = document.getElementById('sliderModal');
+    document.getElementById('addSliderBtn').onclick = () => sliderModal.classList.add('open');
+    document.getElementById('closeSliderModal').onclick = () => sliderModal.classList.remove('open');
+
+    document.getElementById('sliderForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const url = document.getElementById('sliderImageUrl').value.trim();
+      try {
+        const newRef = push(ref(db, 'sliderImages'));
+        await set(newRef, { downloadURL: url });
+        sliderModal.classList.remove('open');
+        showToast('Slider image added');
+      } catch (err) {
+        showToast('Error: ' + err.message);
+      }
+    });
+
+    // ========== MESSAGES ==========
+    function renderMessagesTable() {
+      const tbody = document.getElementById('messagesTableBody');
+      const empty = document.getElementById('messagesEmpty');
+      if (!messagesCache.length) {
+        tbody.innerHTML = '';
+        empty.classList.remove('hidden');
+        return;
+      }
+      empty.classList.add('hidden');
+      tbody.innerHTML = messagesCache.map(m => `
+        <tr>
+          <td>${m.date ? new Date(m.date).toLocaleDateString() : '—'}</td>
+          <td style="font-weight:600;">${m.name || '—'}</td>
+          <td>${m.email || '—'}</td>
+          <td style="max-width:340px;font-size:0.82rem;">${m.message || ''}</td>
+        </tr>
+      `).join('');
+    }
+
+    // ========== CONFIRM MODAL ==========
+    const confirmModal = document.getElementById('confirmModal');
+    let confirmCallback = null;
+
+    function confirmAction(title, text, cb) {
+      document.getElementById('confirmTitle').textContent = title;
+      document.getElementById('confirmText').textContent = text;
+      confirmCallback = cb;
+      confirmModal.classList.add('open');
+    }
+
+    document.getElementById('confirmCancel').onclick = () => {
+      confirmModal.classList.remove('open');
+      confirmCallback = null;
+    };
+    document.getElementById('confirmOk').onclick = async () => {
+      if (confirmCallback) await confirmCallback();
+      confirmModal.classList.remove('open');
+      confirmCallback = null;
+    };
+
+    // Close modal on backdrop click
+    window.addEventListener('click', (e) => {
+      if (e.target === productModal) productModal.classList.remove('open');
+      if (e.target === sliderModal) sliderModal.classList.remove('open');
+      if (e.target === confirmModal) { confirmModal.classList.remove('open'); confirmCallback = null; }
+    });
+
+    // Initial
+    showToast('Mithas Admin Dashboard');
+  </script>
+</body>
+</html>
